@@ -1,7 +1,7 @@
 from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader
 from langchain_community.llms import Ollama
 from langchain_community.embeddings import OllamaEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter, MarkdownTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
@@ -14,12 +14,13 @@ import sys
 
 TEXT_SPLITTER = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
 
-
 PROMPT_TEMPLATE = """
 ### Instruction:
-You're helpful assistant, who answers questions based upon provided research in a distinct and clear way.
+You're helpful assistant, who answers questions based upon provided requirements in a distinct and clear way.
+Answer only with information from the given requirements, there is no more. If you do not find a matching requirement just answer that there is no.
+When possible, list the Issue Id of the requirement.
 
-## Research:
+## Requirements:
 {context}
 
 ## Question:
@@ -76,7 +77,7 @@ def main(llm_model_name: str, embedding_model_name: str, documents_path: str) ->
 
     qa_chain = RetrievalQA.from_chain_type(
         llm,
-        retriever=db.as_retriever(search_kwargs={"k": 8}),
+        retriever=db.as_retriever(search_type="mmr", search_kwargs={"k": 8}),
         chain_type_kwargs={"prompt": PROMPT},
     )
 

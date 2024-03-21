@@ -2,6 +2,7 @@ from langchain_community.document_loaders import (
     DirectoryLoader,
     PyPDFLoader,
     TextLoader,
+    UnstructuredMarkdownLoader,
 )
 import os
 from typing import List
@@ -40,7 +41,8 @@ def load_documents(path: str) -> List[Document]:
         ".md": DirectoryLoader(
             path,
             glob="**/*.md",
-            loader_cls=TextLoader,
+            loader_cls=UnstructuredMarkdownLoader,
+            loader_kwargs={'mode': 'single'},
             show_progress=True,
         ),
     }
