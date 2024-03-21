@@ -28,7 +28,7 @@ def __is_model_available_locally(model_name: str) -> bool:
     try:
         ollama.show(model_name)
         return True
-    except ollama.ResponseError:
+    except ollama.ResponseError as e:
         return False
 
 
@@ -43,15 +43,10 @@ def check_if_model_is_available(model_name: str) -> None:
     Raises:
         ollama.ResponseError: If there is an issue with pulling the model from the repository.
     """
-    try:
-        available = __is_model_available_locally(model_name)
-    except Exception:
-        raise Exception("Unable to communicate with the Ollama service")
-
-    if not available:
+    if not __is_model_available_locally(model_name):
         try:
             __pull_model(model_name)
-        except Exception:
+        except:
             raise Exception(
                 f"Unable to find model '{model_name}', please check the name and try again."
             )
